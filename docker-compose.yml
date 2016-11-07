@@ -1,0 +1,36 @@
+version: "2"
+
+services:
+  data:
+    build: db
+    command: "true"
+    volumes:
+      - /var/lib/postgresql
+  db:
+    build: db
+    restart: always
+    environment:
+      POSTGRES_IK_PASSWORD: 1k1n1s1sRulz
+      POSTGRES_IK_USER: inkinisis
+      POSTGRES_IK_DB: inkinisis_db
+    volumes_from:
+      - data
+  app:
+    build: app
+    links:
+      - db
+    ports:
+      - "80:8080"
+    environment:
+      - PGHOST=db
+      - PGDATABASE=inkinisis_db
+      - PGUSER=inkinisis
+    depends_on:
+      - db
+    command: bash -c "npm start"
+    restart: always
+    volumes:
+      # Mount the app dir in the container as /src so our changes to the app code
+      # are also changed in the container
+      - /private/inkinisis:/src
+

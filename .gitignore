@@ -1,0 +1,6 @@
+# Application src code - different repo
+app/src/
+
+# Editor and os specific files
+.DS_Store
+.idea/
