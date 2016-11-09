@@ -1,3 +1,3 @@
-FROM smich/ik_db
+FROM smich/postgres
 
 COPY docker-entrypoint-initdb.d /docker-entrypoint-initdb.d/

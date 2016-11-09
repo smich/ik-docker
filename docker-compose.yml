@@ -20,7 +20,7 @@ services:
     links:
       - db
     ports:
-      - "80:8080"
+      - "13000:3000"
     environment:
       - PGHOST=db
       - PGDATABASE=inkinisis_db
@@ -33,4 +33,18 @@ services:
       # Mount the app dir in the container as /src so our changes to the app code
       # are also changed in the container
       - /private/inkinisis:/src
-
+  web:
+    restart: always
+    build: web
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes_from:
+      - app
+    links:
+      - app
+    environment:
+      - NGINX_DOMAIN=inkinisis.dev
+      - NGINX_HTTP_PORT=80
+      - NGINX_HTTPS_PORT=443
+#    command: /bin/bash -c "envsubst '$$NGINX_DOMAIN $$NGINX_HTTP_PORT $$NGINX_HTTPS_PORT' < /etc/nginx/conf.d/nabbesh.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"

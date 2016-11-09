@@ -13,3 +13,7 @@ RUN npm install -g \
     pm2 \
     # A command line tool for https://github.com/locomote/node-migrate-orm2 .
     orm-migrate
+
+# Daemonize pm to make sure it restarts after a sudden crash. An executable is
+# created under /etc/init.d
+RUN pm2 startup

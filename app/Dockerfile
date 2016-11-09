@@ -1,4 +1,4 @@
-FROM smich/ik_node
+FROM smich/node
 
 COPY src/ /src
 
@@ -6,7 +6,7 @@ WORKDIR /src
 
 RUN npm install --unsafe-perm
 
-EXPOSE 8080
+EXPOSE 3000
 
 CMD ["npm", "start"]
 
