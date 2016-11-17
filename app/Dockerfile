@@ -8,7 +8,4 @@ RUN npm install --unsafe-perm
 
 EXPOSE 3000
 
-CMD ["npm", "start"]
-
-# Create a script to do npm install and express generate
-# RUN express inkinisis_app
+CMD ["pm2-docker", "--json", "process.yml"]
