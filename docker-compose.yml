@@ -27,9 +27,10 @@ services:
       - PGHOST=db
       - PGDATABASE=inkinisis_db
       - PGUSER=inkinisis
+      - APP=ikapp-dev
     depends_on:
       - db
-    command: bash -c "pm2-docker --json process.yml"
+    command: bash -c "pm2-docker ecosystem.config.js --only $$APP"
     restart: always
     volumes:
       # Mount the app dir in the container as /src so our changes to the app code
