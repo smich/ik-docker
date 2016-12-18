@@ -66,8 +66,9 @@ docker exec -it inkinisis_app_1 bash -c "pm2 stop ecosystem.config.js --only ika
 docker exec -it inkinisis_app_1 bash -c "pm2 start ecosystem.config.js --only ikapp"
 ```
 
+### Footnotes
 
-<sup><a name="webpack-installtion">1</a></sup>Run the following to install webpack:
+<sup><a name="webpack-installation">1</a></sup>Run the following to install webpack:
 ```sh
 npm install -g webpack
 ```
