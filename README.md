@@ -48,3 +48,26 @@ start a bash session to run any command in the container:
 ```sh
 docker exec -it inkinisis_app_1 bash
 ```
+
+# Test production build
+
+- Compile assets in your host using webpack<sup>[1](#webpack-installation)</sup>: 
+```sh 
+NODE_ENV=production webpack -p
+```
+
+- Stop the dev environment: 
+```sh
+docker exec -it inkinisis_app_1 bash -c "pm2 stop ecosystem.config.js --only ikapp-dev"
+```
+
+- Start the production environment: 
+```sh
+docker exec -it inkinisis_app_1 bash -c "pm2 start ecosystem.config.js --only ikapp"
+```
+
+
+<sup><a name="webpack-installtion">1</a></sup>Run the following to install webpack:
+```sh
+npm install -g webpack
+```
