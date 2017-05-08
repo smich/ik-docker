@@ -1,0 +1,65 @@
+#######################################################################
+#                          NGINX config file
+#######################################################################
+
+user nginx;
+
+# Its good to have as many worker processes as CPU cores. 'auto' tries to detect this automatically.
+worker_processes auto;
+
+pid        /var/run/nginx.pid;
+
+# The events module contains all the settings for processing connections in nginx.
+events {
+    # Set the maximum number of simultaneous connections that can be opened by a worker process
+    #  INFO: max_clients = worker_processes * worker_connections
+    worker_connections 1024;
+
+    # epoll is the fastest polling method for multiplexing clients on to threads.
+    use epoll;
+
+    # Tell nginx to accept as many connections as possible after getting a notification about a new connection
+    multi_accept on;
+}
+
+http {
+    sendfile on;
+    keepalive_timeout 65;
+
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+
+    log_format main '$remote_addr - $remote_user [$time_local] "$request" '
+                    '$status $body_bytes_sent "$http_referer" '
+                    '"$http_user_agent" "$http_x_forwarded_for"';
+
+    access_log /var/log/nginx/access.log main;
+    error_log /var/log/nginx/error.log warn;
+
+    # Security: Close risk of clickjacking and prevent this site appearing in a iframe on another site
+    add_header X-Frame-Options SAMEORIGIN;
+
+    # For name-based vhosts to work with SSL, we need to put the SSL details outside the "server" block.
+    # Because the SSL details (needed if serving https pages) are outside the "server" block, Nginx does the SSL offloading without a server_name.
+    # Which is what it should do, as the SSL decryption cannot happen based on any host name, as at this stage the URL is encrypted.
+    ssl_certificate     /etc/nginx/ssl/nginx.crt;
+    ssl_certificate_key /etc/nginx/ssl/nginx.key;
+
+    # IP forwarding
+    # IMPORTANT: Unravel the IP stack to find the real client IP (not the ELB IP)
+    # Tell nginx to trust an X-Forwarded-For header from the following IPs (Amazon, local and Docker)
+    set_real_ip_from    10.0.0.0/8;      # Trust 10.x.x.x (AWS)
+    set_real_ip_from    127.0.0.1;       # Trust localhost
+    set_real_ip_from    172.17.0.0/16;   # Trust 172.17.x.x (Docker gateway)
+    real_ip_header X-Forwarded-For;
+    real_ip_recursive on;
+
+    # We use a nginx map to allow specific domains to access the service (CORS), see the default conf
+    map $http_origin $allowed_origin {
+        # empty causes the Access-Control-Allow-Origin header to be empty
+        default             "";
+        ~${NGINX_DOMAIN}$   $http_origin;
+    }
+
+    include /etc/nginx/conf.d/*.conf;
+}

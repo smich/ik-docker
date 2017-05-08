@@ -1,0 +1,49 @@
+server {
+    listen ${NGINX_HTTP_PORT};
+    listen ${NGINX_HTTPS_PORT} ssl;
+
+    server_name ${NGINX_DOMAIN};
+
+    ssl_certificate     /etc/nginx/ssl/nginx.crt;
+    ssl_certificate_key /etc/nginx/ssl/nginx.key;
+
+    # Serve static assets
+    location ~ ^/(img)/ {
+       root /src/public/;
+    }
+
+    # Set proxy headers
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Host $host;
+    proxy_set_header X-NginX-Proxy true;
+
+    # Development environment only
+
+    # Static assets provided by webpack dev server from memory
+    location /build {
+        proxy_pass https://${APP_CONTAINER_NAME}:${WEBPACK_DEV_SERVER_PORT};
+    }
+    # Hot Module Replacement (HMR): Websocket proxy pass to webpack dev server
+    location /sockjs-node {
+        proxy_pass https://${APP_CONTAINER_NAME}:${WEBPACK_DEV_SERVER_PORT};
+        proxy_redirect off;
+        proxy_http_version 1.1;
+        # Required if you work with WebSockets, which uses HTTP for handshake, but must
+        # 'upgrade' to a WebSocket connection
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+
+        proxy_cache_bypass $http_upgrade;
+        proxy_read_timeout 60;
+    }
+
+    # Proxy pass the rest of the requests to the node server
+    location / {
+        proxy_pass http://${APP_CONTAINER_NAME}:${NODE_PORT};
+    }
+
+    # Add custom logs
+    access_log /var/log/nginx/ik.access.log main;
+    error_log /var/log/nginx/ik.error.log warn;
+}

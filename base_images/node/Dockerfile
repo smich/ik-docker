@@ -10,9 +10,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN npm install -g \
     express-generator \
     # Node process manager
-    pm2 \
-    # A command line tool for https://github.com/locomote/node-migrate-orm2 .
-    orm-migrate
+    pm2
 
 # Daemonize pm to make sure it restarts after a sudden crash. An executable is
 # created under /etc/init.d

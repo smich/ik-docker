@@ -10,35 +10,37 @@ services:
     build: db
     restart: always
     environment:
-      POSTGRES_IK_PASSWORD: 1k1n1s1sRulz
-      POSTGRES_IK_USER: inkinisis
-      POSTGRES_IK_DB: inkinisis_db
+      - POSTGRES_IK_PASSWORD=${POSTGRES_IK_PASSWORD}
+      - POSTGRES_IK_USER=${POSTGRES_IK_USER}
+      - POSTGRES_IK_DB=${POSTGRES_IK_DB}
     ports:
         - "15432:5432"
     volumes_from:
       - data
   app:
-    build: app
+    image: peopleperhour/talentdesk_app
     links:
       - db
     ports:
-      - "13000:3000"
+      - "3000:3000"
+      - "3001:3001"
     environment:
-      - PGHOST=db
-      - PGDATABASE=inkinisis_db
-      - PGUSER=inkinisis
-      - APP=ikapp-dev
+      - PGHOST=${PGHOST}
+      - PGDATABASE=${PGDATABASE}
+      - PGUSER=${PGUSER}
+      - APP=${APP}
+      - NODE_ENV=${NODE_ENV}
     depends_on:
       - db
-    command: bash -c "pm2-docker ecosystem.config.js --only $$APP"
     restart: always
     volumes:
       # Mount the app dir in the container as /src so our changes to the app code
       # are also changed in the container
       - /private/inkinisis:/src
+    command: bash -c "pm2-docker ecosystem.config.js --only $$APP"
   web:
+    image: peopleperhour/talentdesk_nginx
     restart: always
-    build: web
     ports:
       - "80:80"
       - "443:443"
@@ -47,7 +49,10 @@ services:
     links:
       - app
     environment:
-      - NGINX_DOMAIN=inkinisis.dev
-      - NGINX_HTTP_PORT=80
-      - NGINX_HTTPS_PORT=443
-    command: /bin/bash -c "envsubst '$$NGINX_DOMAIN $$NGINX_HTTP_PORT $$NGINX_HTTPS_PORT' < /etc/nginx/conf.d/inkinisis.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
+      - APP_CONTAINER_NAME=${APP_CONTAINER_NAME}
+      - NGINX_DOMAIN=${NGINX_DOMAIN}
+      - NGINX_HTTP_PORT=${NGINX_HTTP_PORT}
+      - NGINX_HTTPS_PORT=${NGINX_HTTPS_PORT}
+      - NODE_PORT=${NODE_PORT}
+      - WEBPACK_DEV_SERVER_PORT=${WEBPACK_DEV_SERVER_PORT}
+    command: /bin/bash -c "envsubst '$$APP_CONTAINER_NAME $$NGINX_DOMAIN $$NGINX_HTTP_PORT $$NGINX_HTTPS_PORT $$NODE_PORT $$WEBPACK_DEV_SERVER_PORT' < /etc/nginx/conf.d/default-conf.template > /etc/nginx/conf.d/default.conf && envsubst '$$NGINX_DOMAIN' < /etc/nginx/nginx-conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"

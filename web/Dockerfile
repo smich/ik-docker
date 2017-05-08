@@ -1,6 +1,12 @@
-FROM smich/nginx
+FROM nginx
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    apt-utils \
+    sudo \
+    vim
 
 RUN mkdir -p /etc/nginx/ssl
-COPY inkinisis.template /etc/nginx/conf.d/inkinisis.template
-COPY ik-nginx.crt /etc/nginx/ssl/ik-nginx.crt
-COPY ik-nginx.key /etc/nginx/ssl/ik-nginx.key
+COPY nginx-conf.template /etc/nginx/nginx-conf.template
+COPY default-conf.template /etc/nginx/conf.d/default-conf.template
+COPY nginx.crt /etc/nginx/ssl/nginx.crt
+COPY nginx.key /etc/nginx/ssl/nginx.key
