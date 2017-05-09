@@ -1,6 +1,8 @@
-# Application src code - different repo
-app/src/
-
 # Editor and os specific files
 .DS_Store
 .idea/
+
+# Mysql data directory - mounted as volume by docker-compose.yml
+db/mysql/
+# Postgresql data directory - mounted as volume by docker-compose.yml
+postgres/postgresql

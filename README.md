@@ -2,7 +2,7 @@
 
 ## Software installation
 
-1. Download and install Docker from [here] (https://docs.docker.com/engine/installation/)
+1. Download and install Docker by clicking [here](https://docs.docker.com/engine/installation/)
 
 
 ## Accounts setup
@@ -31,7 +31,7 @@ clean-up their branches.
 
 ## Local environment setup
 
-1. Install required npm modules: `cd ~/inkinisis/app/src && npm install`
+1. Install required npm modules: `cd ~/inkinisis/inkinisis-app/src && npm install`
 1. Build the containers - this will take some time as it needs to fetch container images from docker hub: `cd ~/inkinisis && docker-compose build`
 
 # Everyday dev commands in Docker
@@ -42,7 +42,7 @@ docker exec -it inkinisis_app_1 bash -c "pm2 logs"
 ```
 reload application server:
 ```sh
-docker exec -it inkinisis_app_1 bash -c "pm2 reload ecosystem.config.js --only ikapp-dev"
+docker exec -it inkinisis_app_1 bash -c "pm2 reload ecosystem.config.js --only app-dev"
 ```
 start a bash session to run any command in the container:
 ```sh
@@ -58,7 +58,7 @@ NODE_ENV=production webpack -p
 
 - Stop the dev environment: 
 ```sh
-docker exec -it inkinisis_app_1 bash -c "pm2 stop ecosystem.config.js --only ikapp-dev"
+docker exec -it inkinisis_app_1 bash -c "pm2 stop ecosystem.config.js --only app-dev"
 ```
 
 - Start the production environment: 

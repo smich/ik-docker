@@ -2,12 +2,12 @@ version: "2"
 
 services:
   data:
-    build: db
+    image: postgres
     command: "true"
     volumes:
-      - /var/lib/postgresql
+      - ./postgres/postgresql:/var/lib/postgresql
   db:
-    build: db
+    image: postgres
     restart: always
     environment:
       - POSTGRES_IK_PASSWORD=${POSTGRES_IK_PASSWORD}
@@ -17,6 +17,8 @@ services:
         - "15432:5432"
     volumes_from:
       - data
+    volumes:
+      - ./postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
   app:
     image: peopleperhour/talentdesk_app
     links:
@@ -25,9 +27,10 @@ services:
       - "3000:3000"
       - "3001:3001"
     environment:
-      - PGHOST=${PGHOST}
-      - PGDATABASE=${PGDATABASE}
-      - PGUSER=${PGUSER}
+      - DB_HOST=${DB_HOST}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
       - APP=${APP}
       - NODE_ENV=${NODE_ENV}
     depends_on:
