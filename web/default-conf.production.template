@@ -1,0 +1,33 @@
+server {
+    listen ${NGINX_HTTP_PORT};
+    listen ${NGINX_HTTPS_PORT} ssl;
+
+    server_name ${NGINX_DOMAIN};
+
+    ssl_certificate     /etc/nginx/ssl/nginx.crt;
+    ssl_certificate_key /etc/nginx/ssl/nginx.key;
+
+    # Serve the static assets
+    location ~ ^/(img)/ {
+       root /src/public/;
+    }
+    # Serve other assets (compiled js, css, fonts etc)
+    location ~ ^/(build)/ {
+       root /src/;
+    }
+
+    # Set proxy headers
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Host $host;
+    proxy_set_header X-NginX-Proxy true;
+
+    # Proxy pass the rest of the requests to the node server
+    location / {
+        proxy_pass http://${APP_CONTAINER_NAME}:${NODE_PORT};
+    }
+
+    # Add custom logs
+    access_log /var/log/nginx/ik.access.log main;
+    error_log /var/log/nginx/ik.error.log warn;
+}
